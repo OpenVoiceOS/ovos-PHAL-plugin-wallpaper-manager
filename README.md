@@ -31,6 +31,7 @@ On successful registration of a wallpaper provider, the wallpaper management int
 
 Activate a wallpaper provider by sending the following event:
 
+
 ``` python
     # ovos.wallpaper.manager.set.active.provider
     # type: Request
@@ -38,6 +39,9 @@ Activate a wallpaper provider by sending the following event:
     # data required:
         # provider_name = typically the self.skill_id of the skill that is the wallpaper provider
 ```
+
+Note: This is handled by the Wallpapers Settings UI on "smartspeaker" and "mobile" GUI platforms,
+Skills / Wallpaper providers must not be sending this unless they want to force override the currently set provider.
 
 ### Wallpaper Collection API
 A wallpaper provider can send a collection of wallpapers to the wallpaper management interface, this is optional and will depend on case by case basis, where some providers might have their own collection of wallpapers and some 
