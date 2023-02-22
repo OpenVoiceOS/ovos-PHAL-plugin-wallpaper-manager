@@ -30,7 +30,9 @@ class WallpaperManager(PHALPlugin):
                     self.handle_get_registered_providers)
         self.bus.on("ovos.wallpaper.manager.set.active.provider",
                     self.handle_set_active_provider)
-        
+        self.bus.on("ovos.wallpaper.manager.get.active.provider",
+                    self.handle_get_active_provider)
+
         # Private method to only be used by homescreen skills
         # This is used to set the default provider if none is selected
         # Wallpapers need to be available as soon as the homescreen is loaded
@@ -45,32 +47,32 @@ class WallpaperManager(PHALPlugin):
                     self.handle_wallpaper_collection)
         self.bus.on("ovos.wallpaper.manager.get.collection",
                     self.get_wallpaper_collection)
-        self.bus.on("ovos.wallpaper.manager.get.collection.from.provider", 
+        self.bus.on("ovos.wallpaper.manager.get.collection.from.provider",
                     self.get_wallpaper_collection_from_provider)
         self.bus.on("ovos.wallpaper.manager.update.collection",
                     self.collect_wallpapers_from_provider)
-        
+
         # Manage when the provider wants to set a wallpaper / user wants to set a wallpaper
         # both simply call the same method
         self.bus.on("ovos.wallpaper.manager.set.wallpaper",
                     self.handle_set_wallpaper)
         self.bus.on("ovos.wallpaper.manager.get.wallpaper",
                     self.handle_get_wallpaper)
-        
+
         # Handle swipe and voice intents to change wallpaper, also auto rotation
         self.bus.on("ovos.wallpaper.manager.change.wallpaper", self.handle_change_wallpaper)
 
         # Auto wallpaper rotation and setting up time for change
         self.bus.on("ovos.wallpaper.manager.enable.auto.rotation", self.handle_enable_auto_rotation)
         self.bus.on("ovos.wallpaper.manager.disable.auto.rotation", self.handle_disable_auto_rotation)
-        
-        
+
+
         # Providers Configuration API to be used By Settings UI
         # Some wallpaper providers might want to show configuration options to the user
         self.bus.on("ovos.wallpaper.manager.get.provider.config", self.handle_get_provider_config)
         self.bus.on("ovos.wallpaper.manager.set.provider.config", self.handle_set_provider_config)
         self.bus.on("ovos.wallpaper.manager.provider.config", self.handle_received_provider_config)
-        
+
         # We cannot guarantee when this plugin will be loaded so emit a message to any providers
         # that are waiting for the plugin to be loaded so they can immediately register
         self.bus.emit(Message("ovos.wallpaper.manager.loaded"))
@@ -131,7 +133,7 @@ class WallpaperManager(PHALPlugin):
             })
             self.bus.emit(Message("ovos.phal.wallpaper.manager.provider.registered"))
 
-        self.collect_wallpapers_from_provider(Message("ovos.phal.wallpaper.manager.provider.collection.updated", 
+        self.collect_wallpapers_from_provider(Message("ovos.phal.wallpaper.manager.provider.collection.updated",
                                                         {"provider_name": provider_name}))
 
     def handle_get_registered_providers(self, message):
@@ -140,6 +142,9 @@ class WallpaperManager(PHALPlugin):
     def handle_set_active_provider(self, message):
         provider_name = message.data.get("provider_name")
         self.selected_provider = provider_name
+
+    def handle_get_active_provider(self, message):
+        self.bus.emit(message.response(data={"active_provider": self.selected_provider}))
 
     def handle_setup_default_provider(self, message):
         provider_name = message.data.get("provider_name")
@@ -154,7 +159,7 @@ class WallpaperManager(PHALPlugin):
 
             if wallpaper_collection:
                 self.selected_wallpaper = wallpaper_collection[0]
-                self.handle_set_wallpaper(Message("ovos.phal.wallpaper.manager.set.wallpaper", 
+                self.handle_set_wallpaper(Message("ovos.phal.wallpaper.manager.set.wallpaper",
                                                   {"url": wallpaper_collection[0]}))
             else:
                 self.bus.emit(Message(f"{self.selected_provider}.get.new.wallpaper"))
@@ -170,7 +175,7 @@ class WallpaperManager(PHALPlugin):
             for provider in self.registered_providers:
                 if provider.get("provider_name") == provider_name:
                     provider["wallpaper_collection"] = wallpaper_collection
-    
+
     def get_wallpaper_collection_from_provider(self, message):
         provider_name = message.data.get("provider_name")
         if provider_name:
@@ -179,7 +184,7 @@ class WallpaperManager(PHALPlugin):
                     self.bus.emit(message.response(
                         data={"provider_name": provider_name,
                               "wallpaper_collection": provider["wallpaper_collection"]}))
-    
+
     def get_wallpaper_collection(self, message):
         current_wallpaper_collection = []
         for provider in self.registered_providers:
@@ -198,68 +203,68 @@ class WallpaperManager(PHALPlugin):
             self.bus.emit(Message("homescreen.wallpaper.set", {"url": wallpaper}))
         else:
             set_wallpaper(wallpaper)
-            
+
         self.selected_wallpaper = wallpaper
-        
+
     def handle_get_wallpaper(self, message):
         self.bus.emit(message.response(data={"url": self.selected_wallpaper}))
-        
+
     def get_wallpaper_idx(self, collection, filename):
         try:
             index_element = collection.index(filename)
             return index_element
         except ValueError:
             return None
-        
+
     def handle_change_wallpaper(self, message=None):
         wallpaper_collection = []
         for provider in self.registered_providers:
             if provider.get("provider_name") == self.selected_provider:
                 wallpaper_collection = provider["wallpaper_collection"]
-            
+
         if len(wallpaper_collection) > 0:
             current_idx = self.get_wallpaper_idx(wallpaper_collection, self.selected_wallpaper)
             collection_length = len(wallpaper_collection) - 1
             if not current_idx == collection_length:
                 future_idx = current_idx + 1
-                self.handle_set_wallpaper(Message("ovos.wallpaper.manager.set.wallpaper", 
+                self.handle_set_wallpaper(Message("ovos.wallpaper.manager.set.wallpaper",
                                                   {"url": wallpaper_collection[future_idx]}))
             else:
-                self.handle_set_wallpaper(Message("ovos.wallpaper.manager.set.wallpaper", 
+                self.handle_set_wallpaper(Message("ovos.wallpaper.manager.set.wallpaper",
                                                   {"url": wallpaper_collection[0]}))
-            
+
         else:
             self.bus.emit(Message(f"{self.selected_provider}.get.new.wallpaper"))
-            
+
     def handle_enable_auto_rotation(self, message):
         rotation_time = message.data.get("rotation_time")
         if rotation_time:
             self.wallpaper_rotation_time = rotation_time
         else:
             self.wallpaper_rotation_time = 30
-        
+
         self.event_scheduler_interface.schedule_event(
             self.handle_change_wallpaper, self.wallpaper_rotation_time, data=None, name="wallpaper_rotation"
         )
         self.wallpaper_rotation = True
-    
+
     def handle_disable_auto_rotation(self, message):
         self.event_scheduler_interface.cancel_scheduled_event("wallpaper_rotation")
         self.wallpaper_rotation = False
-        
+
     def handle_get_provider_config(self, message):
         provider_name = message.data.get("provider_name")
         for provider in self.registered_providers:
             if provider.get("provider_name") == provider_name:
                 if provider.get("provider_configurable"):
                     self.bus.emit(Message(f"{provider_name}.get.wallpaper.config"))
-    
+
     def handle_received_provider_config(self, message):
         provider_name = message.data.get("provider_name")
         config = message.data.get("config")
         self.bus.emit(Message("ovos.wallpaper.manager.get.provider.config.response",
                               data={"provider_name": provider_name, "config": config}))
-    
+
     def handle_set_provider_config(self, message):
         provider_name = message.data.get("provider_name")
         config = message.data.get("config")
