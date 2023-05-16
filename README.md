@@ -1,6 +1,8 @@
 # OVOS PHAL PLUGIN WALLPAPER MANAGER
 This PHAL plugin provides a central wallpaper management interface for homescreens and other desktops
 
+Platform support provided by https://github.com/OpenVoiceOS/wallpaper_changer
+
 ### What is the Wallpaper Management Interface ?
 The wallpaper management interface provides functionality for providing a central interface for homescreen and desktop wallpaper management, this interface is responsible for providing a list of available wallpapers and also provides functionality for setting a wallpaper from the list of available wallpapers. This interface supports different types of wallpaper providers, this can be a local provider that provides wallpapers from the local filesystem or a remote provider that provides wallpapers from a remote url. 
 
