@@ -1,3 +1,0 @@
-[ovos.plugin.phal]
-ovos-PHAL-plugin-wallpaper-manager=ovos_PHAL_plugin_wallpaper_manager:WallpaperManager
-

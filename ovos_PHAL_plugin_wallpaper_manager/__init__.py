@@ -2,7 +2,8 @@ import os
 import threading
 import requests
 import hashlib
-from mycroft_bus_client.message import Message
+
+from ovos_bus_client.message import Message
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_utils.log import LOG
 from ovos_utils.skills.settings import PrivateSettings
@@ -11,6 +12,7 @@ from ovos_config.config import Configuration
 from ovos_utils.events import EventSchedulerInterface
 from wallpaper_changer import set_wallpaper
 from ovos_PHAL_plugin_wallpaper_manager.downloadedProvider import DownloadedProvider
+
 
 class WallpaperManager(PHALPlugin):
 
