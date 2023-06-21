@@ -2,7 +2,8 @@ import os
 import threading
 import requests
 import hashlib
-from mycroft_bus_client.message import Message
+
+from ovos_bus_client.message import Message
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_utils.log import LOG
 from ovos_utils.skills.settings import PrivateSettings
@@ -11,6 +12,7 @@ from ovos_config.config import Configuration
 from ovos_utils.events import EventSchedulerInterface
 from wallpaper_changer import set_wallpaper
 from ovos_PHAL_plugin_wallpaper_manager.downloadedProvider import DownloadedProvider
+
 
 class WallpaperManager(PHALPlugin):
 
@@ -23,13 +25,15 @@ class WallpaperManager(PHALPlugin):
         core_config = Configuration()
         enclosure_config = core_config.get("gui") or {}
         self.active_extension = enclosure_config.get("extension", "generic")
-        self.event_scheduler_interface = EventSchedulerInterface(name=name, bus=self.bus)
+        self.event_scheduler_interface = EventSchedulerInterface(skill_id=name,
+                                                                 bus=self.bus)
 
         self.settings = PrivateSettings(name)
         self.registered_providers = []
         self.setup_default_provider_running = False
         self.threading_event = threading.Event()
-        self.local_wallpaper_storage = os.path.join(xdg_data_home(), "wallpapers")
+        self.local_wallpaper_storage = os.path.join(xdg_data_home(),
+                                                    "wallpapers")
     
         if not os.path.exists(self.local_wallpaper_storage):
             os.makedirs(self.local_wallpaper_storage)
@@ -74,7 +78,8 @@ class WallpaperManager(PHALPlugin):
                     self.handle_get_wallpaper)
         
         # Handle swipe and voice intents to change wallpaper, also auto rotation
-        self.bus.on("ovos.wallpaper.manager.change.wallpaper", self.handle_change_wallpaper)
+        self.bus.on("ovos.wallpaper.manager.change.wallpaper",
+                    self.handle_change_wallpaper)
 
         # Auto wallpaper rotation and setting up time for change
         self.bus.on("ovos.wallpaper.manager.enable.auto.rotation", self.handle_enable_auto_rotation)
