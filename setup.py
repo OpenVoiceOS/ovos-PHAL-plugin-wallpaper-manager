@@ -4,6 +4,7 @@ from setuptools import setup
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
+
 def get_version():
     """ Find the version of the package"""
     version = None
@@ -28,6 +29,7 @@ def get_version():
         version += f"a{alpha}"
     return version
 
+
 def required(requirements_file):
     """ Read requirements file and remove comments and empty lines. """
     with open(os.path.join(BASEDIR, requirements_file), 'r') as f:
@@ -38,6 +40,7 @@ def required(requirements_file):
         return [pkg for pkg in requirements
                 if pkg.strip() and not pkg.startswith("#")]
 
+
 def package_files(directory):
     paths = []
     for (path, directories, filenames) in os.walk(directory):
@@ -45,11 +48,20 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
+
+def get_description():
+    with open(os.path.join(BASEDIR, "README.md"), "r") as f:
+        long_description = f.read()
+    return long_description
+
+
 PLUGIN_ENTRY_POINT = 'ovos-PHAL-plugin-wallpaper-manager=ovos_PHAL_plugin_wallpaper_manager:WallpaperManager'
 setup(
     name='ovos-PHAL-plugin-wallpaper-manager',
     version=get_version(),
     description='A plugin for OpenVoiceOS hardware abstraction layer',
+    long_description=get_description(),
+    long_description_content_type="text/markdown",
     url='https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager',
     author='Aiix',
     author_email='aix.m@outlook.com',
