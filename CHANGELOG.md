@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.1a4](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.1a4) (2023-06-21)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.1a3...0.0.1a4)
+
+**Merged pull requests:**
+
+- Refactor `name` to `skill_id` to resolve deprecation warning [\#3](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/3) ([NeonDaniel](https://github.com/NeonDaniel))
+
 ## [0.0.1a3](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.1a3) (2023-06-21)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/V0.0.1a2...0.0.1a3)
