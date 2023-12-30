@@ -2,8 +2,10 @@
 # For wallpapers that are downloaded from the internet when using dynamic providers
 # So users can select a previously downloaded wallpaper from a list as they will already have it
 import os
-from ovos_utils.log import LOG
+
 from ovos_bus_client.message import Message
+from ovos_utils.log import LOG
+
 
 class DownloadedProvider:
     def __init__(self, bus, local_path):
