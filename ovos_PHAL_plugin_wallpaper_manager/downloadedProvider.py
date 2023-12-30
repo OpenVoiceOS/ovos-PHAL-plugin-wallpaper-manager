@@ -3,7 +3,7 @@
 # So users can select a previously downloaded wallpaper from a list as they will already have it
 import os
 from ovos_utils.log import LOG
-from mycroft_bus_client.message import Message
+from ovos_bus_client.message import Message
 
 class DownloadedProvider:
     def __init__(self, bus, local_path):

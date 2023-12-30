@@ -6,7 +6,7 @@ import hashlib
 from ovos_bus_client.message import Message
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_utils.log import LOG
-from ovos_utils.skills.settings import PrivateSettings
+from ovos_workshop.settings import PrivateSettings
 from ovos_utils.xdg_utils import xdg_data_home
 from ovos_config.config import Configuration
 from ovos_utils.events import EventSchedulerInterface
