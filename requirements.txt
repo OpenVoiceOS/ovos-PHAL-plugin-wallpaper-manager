@@ -1,4 +1,4 @@
 ovos-plugin-manager~=0.0.23
-ovos_utils~=0.0.33
+ovos_utils>=0.0.33,<0.2.0
 ovos-bus-client~=0.0.3
 wallpaper-finder
