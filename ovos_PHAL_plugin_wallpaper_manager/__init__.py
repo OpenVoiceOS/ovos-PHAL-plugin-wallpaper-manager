@@ -275,10 +275,16 @@ class WallpaperManager(PHALPlugin):
             wallpaper = self.store_wallpaper_to_local(wallpaper)
 
         if not self.setup_default_provider_running:
-            if self.active_extension == "smartspeaker" or self.active_extension == "mobile":
-                self.bus.emit(Message("homescreen.wallpaper.set", {"url": wallpaper}))
-            else:
+            # change homescreen wallpaper
+            self.bus.emit(Message("homescreen.wallpaper.set", {"url": wallpaper}))
+            
+            # if running on a desktop, also change it's wallpaper
+            # TODO - config flag?
+            try:
                 set_wallpaper(wallpaper)
+            except: 
+                # https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/issues/7
+                pass # TODO - happens in EGLFS, fix later
 
             self.selected_wallpaper = wallpaper
         else:
