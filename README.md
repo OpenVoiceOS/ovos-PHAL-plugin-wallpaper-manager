@@ -168,21 +168,13 @@ Wallpaper auto rotation can be disabled by sending the following event:
 ``` python
 
 def ExampleWallpaperProvider(OVOSSkill):
-    def __init__(self):
-        super(ExampleWallpaperProvider, self).__init__(name="ExampleWallpaperProvider")
-        self.wallpaper_collection = []
-
     def initialize(self):
-        self.bus.on("ovos.wallpaper.manager.loaded",
-            self.register_with_wallpaper_provider)        
-        self.bus.on(f"{self.skill_id}.get.wallpaper.collection",
-                    self.supply_wallpaper_collection)
+        self.add_event("ovos.wallpaper.manager.loaded", self.register_with_wallpaper_provider)        
+        self.add_event(f"{self.skill_id}.get.wallpaper.collection", self.supply_wallpaper_collection)
 
     def collect_wallpapers(self):
         wallpaper_folder = "/usr/share/wallpapers"
-        for dirname, dirnames, filenames in os.walk(wallpaper_folder):
-            self.wallpaper_collection = filenames
-        pass
+        return [f"{wallpaper_folder}/{f}" for f in os.listdir(wallpaper_folder)]
     
     def register_with_wallpaper_provider(self, message):
         self.bus.emit(Message("ovos.wallpaper.manager.register.provider",
@@ -190,10 +182,10 @@ def ExampleWallpaperProvider(OVOSSkill):
                                     "provider_display_name": "Example Wallpaper Provider"}))
     
     def supply_wallpaper_collection(self, message):
-        self.collect_wallpapers()
+        wp = self.collect_wallpapers()
         self.bus.emit(Message("ovos.wallpaper.manager.collect.collection.response",
                               data={"provider_name": self.skill_id,
-                                    "wallpaper_collection": self.wallpaper_collection}))
+                                    "wallpaper_collection": wp}))
 ```
 
 ## Example Implementation in a Wallpaper Provider Skill Not Providing a Collection of Wallpapers:
@@ -201,15 +193,9 @@ def ExampleWallpaperProvider(OVOSSkill):
 ``` python
 
 def ExampleWallpaperProvider(OVOSSkill):
-    def __init__(self):
-        super(ExampleWallpaperProvider, self).__init__(name="ExampleWallpaperProvider")
-        self.wallpaper_collection = []
-
     def initialize(self):
-        self.bus.on("ovos.wallpaper.manager.loaded",
-            self.register_with_wallpaper_provider)
-        self.bus.on(f"{self.skill_id}.get.new.wallpaper",
-                    self.supply_new_wallpaper)
+        self.add_event("ovos.wallpaper.manager.loaded", self.register_with_wallpaper_provider)
+        self.add_event(f"{self.skill_id}.get.new.wallpaper", self.supply_new_wallpaper)
     
     def register_with_wallpaper_provider(self, message):
         self.bus.emit(Message("ovos.wallpaper.manager.register.provider",
