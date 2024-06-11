@@ -83,12 +83,6 @@ class WallpaperManager(PHALPlugin):
         self.bus.on("ovos.wallpaper.manager.disable.auto.rotation", self.handle_disable_auto_rotation)
         self.bus.on("ovos.wallpaper.manager.get.auto.rotation", self.handle_get_auto_rotation)
 
-        # Providers Configuration API to be used By Settings UI
-        # Some wallpaper providers might want to show configuration options to the user
-        self.bus.on("ovos.wallpaper.manager.get.provider.config", self.handle_get_provider_config)
-        self.bus.on("ovos.wallpaper.manager.set.provider.config", self.handle_set_provider_config)
-        self.bus.on("ovos.wallpaper.manager.provider.config", self.handle_received_provider_config)
-
         # We cannot guarantee when this plugin will be loaded so emit a message to any providers
         # that are waiting for the plugin to be loaded so they can immediately register
         self.bus.emit(Message("ovos.wallpaper.manager.loaded"))
@@ -339,24 +333,6 @@ class WallpaperManager(PHALPlugin):
     def handle_get_auto_rotation(self, message):
         self.bus.emit(message.response(data={"auto_rotation": self.wallpaper_rotation,
                                              "rotation_time": self.wallpaper_rotation_time}))
-
-    def handle_get_provider_config(self, message):
-        provider_name = message.data.get("provider_name")
-        for provider in self.registered_providers:
-            if provider.get("provider_name") == provider_name:
-                if provider.get("provider_configurable"):
-                    self.bus.emit(Message(f"{provider_name}.get.wallpaper.config"))
-
-    def handle_received_provider_config(self, message):
-        provider_name = message.data.get("provider_name")
-        config = message.data.get("config")
-        self.bus.emit(Message("ovos.wallpaper.manager.get.provider.config.response",
-                              data={"provider_name": provider_name, "config": config}))
-
-    def handle_set_provider_config(self, message):
-        provider_name = message.data.get("provider_name")
-        config = message.data.get("config")
-        self.bus.emit(Message(f"{provider_name}.set.wallpaper.config", {"config": config}))
 
     def store_wallpaper_to_local(self, url):
         wallpaper_name = url.split("/")[-1]

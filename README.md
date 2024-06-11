@@ -163,28 +163,6 @@ Wallpaper auto rotation can be disabled by sending the following event:
     # description: Request the wallpaper management interface to disable auto rotate
 ```
 
-### Provider Configuration API
-The wallpaper management interface provides functionality for configuring wallpaper providers through the GUI interface, this is the event providers must listen for:
-
-Note: Currently only string configuration options are supported.
-
-``` python
-    # {provider_name}.get.wallpaper.config
-    # type: Request
-    # description: Request the wallpaper management interface to configure a wallpaper provider
-```
-
-on receiving the above event, the wallpaper provider must respond with the following event:
-
-``` python
-    # ovos.wallpaper.manager.provider.config
-    # type: Response
-    # description: Response to the wallpaper provider configuration request
-    # data required:
-        # provider_name = typically the self.skill_id of the skill that provides the wallpaper provider
-        # config = a dictionary of configuration options for the wallpaper provider
-```
-
 ## Example Implementation in a Wallpaper Provider Skill Providing a Collection of Wallpapers:
 
 ``` python
