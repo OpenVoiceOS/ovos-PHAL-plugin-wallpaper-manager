@@ -1,5 +1,7 @@
 import hashlib
 import os
+from typing import Optional
+
 import requests
 
 from ovos_bus_client.message import Message
@@ -72,7 +74,7 @@ class WallpaperManager(PHALPlugin):
         self.bus.on("ovos.wallpaper.manager.get.wallpaper",
                     self.handle_get_wallpaper)
 
-        # Handle swipe and voice intents to change wallpaper, also auto rotation
+        # Handle swipe and voice intents to change wallpaper, also auto-rotation
         self.bus.on("ovos.wallpaper.manager.change.wallpaper",
                     self.handle_change_wallpaper)
 
@@ -314,26 +316,35 @@ class WallpaperManager(PHALPlugin):
         except ValueError:
             return None
 
-    def handle_change_wallpaper(self, message=None):
-        wallpaper_collection = \
-            self.registered_providers.get(self.selected_provider, {}).get("wallpaper_collection") or list()
+    def handle_change_wallpaper(self, message: Message):
+        """
+        Handle a request to change the wallpaper to the next item in the
+        active collection.
+        @param message: `ovos.wallpaper.manager.change.wallpaper` message or
+            message from EventScheduler
+        """
+        wallpaper_collection = self.registered_providers.get(
+            self.selected_provider, {}).get("wallpaper_collection") or list()
 
         if len(wallpaper_collection) > 0:
             current_idx = self.get_wallpaper_idx(wallpaper_collection,
                                                  self.selected_wallpaper)
             final_idx = len(wallpaper_collection) - 1
-            LOG.info(f"Getting new wallpaper. current={current_idx} final_idx={final_idx}")
+            LOG.debug(f"Getting new wallpaper. current={current_idx} "
+                      f"final_idx={final_idx}")
             if not current_idx == final_idx:
                 future_idx = current_idx + 1
-                self.handle_set_wallpaper(Message("ovos.wallpaper.manager.set.wallpaper",
-                                                  {"url": wallpaper_collection[future_idx]}))
+                self.handle_set_wallpaper(
+                    message.forward("ovos.wallpaper.manager.set.wallpaper",
+                                    {"url": wallpaper_collection[future_idx]}))
             else:
-                self.handle_set_wallpaper(Message("ovos.wallpaper.manager.set.wallpaper",
-                                                  {"url": wallpaper_collection[0]}))
+                self.handle_set_wallpaper(
+                    message.forward("ovos.wallpaper.manager.set.wallpaper",
+                                    {"url": wallpaper_collection[0]}))
 
         else:
             LOG.info("No wallpaper in registered providers")
-            self.bus.emit(Message(f"{self.selected_provider}.get.new.wallpaper"))
+            self.bus.emit(message.forward(f"{self.selected_provider}.get.new.wallpaper"))
 
     def _start_auto_rotation(self):
         """
