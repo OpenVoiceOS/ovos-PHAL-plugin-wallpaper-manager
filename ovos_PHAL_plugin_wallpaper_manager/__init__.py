@@ -114,8 +114,13 @@ class WallpaperManager(PHALPlugin):
         self.settings.store()
 
     @property
-    def wallpaper_rotation_time(self):
-        return self.settings.get("wallpaper_rotation_time", 30)
+    def wallpaper_rotation_time(self) -> int:
+        try:
+            rot_time = self.settings.get("wallpaper_rotation_time") or 30
+            return int(rot_time)
+        except Exception as e:
+            LOG.error(e)
+            return 30
 
     @wallpaper_rotation_time.setter
     def wallpaper_rotation_time(self, val):
@@ -298,15 +303,12 @@ class WallpaperManager(PHALPlugin):
             self.bus.emit(Message(f"{self.selected_provider}.get.new.wallpaper"))
 
     def handle_enable_auto_rotation(self, message):
-        rotation_time = message.data.get("rotation_time")
-        if rotation_time:
-            self.wallpaper_rotation_time = rotation_time
-        else:
-            self.wallpaper_rotation_time = 30
+        self.wallpaper_rotation_time = message.data.get("rotation_time") or \
+                                       self.wallpaper_rotation_time
 
-        self.event_scheduler_interface.schedule_event(
-            self.handle_change_wallpaper, self.wallpaper_rotation_time, data=None, name="wallpaper_rotation"
-        )
+        self.event_scheduler_interface.schedule_repeating_event(
+            self.handle_change_wallpaper, None, self.wallpaper_rotation_time,
+            data=None, name="wallpaper_rotation")
         self.wallpaper_rotation = True
         self.bus.emit(Message("ovos.wallpaper.manager.auto.rotation.enabled"))
 
