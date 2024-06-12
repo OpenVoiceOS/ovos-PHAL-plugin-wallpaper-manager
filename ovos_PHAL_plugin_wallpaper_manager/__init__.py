@@ -28,9 +28,8 @@ class WallpaperManager(PHALPlugin):
                                                                  bus=self.bus)
 
         self.settings = PrivateSettings(name)
-        self.registered_providers = []
+        self.registered_providers = {}
         self.setup_default_provider_running = False
-        self.threading_event = threading.Event()
         self.local_wallpaper_storage = os.path.join(xdg_data_home(),
                                                     "wallpapers")
 
@@ -132,45 +131,37 @@ class WallpaperManager(PHALPlugin):
 
         if not provider_name or not provider_display_name:
             LOG.error("Unable to register wallpaper provider, missing required parameters")
-
-        if not any((provider.get('provider_name') == provider_name
-                    for provider in self.registered_providers)):
-            self.registered_providers.append({
+        if provider_name not in self.registered_providers:
+            self.registered_providers[provider_name] = {
                 "provider_name": provider_name,
                 "provider_display_name": provider_display_name,
                 "provider_configurable": provider_configurable,
                 "wallpaper_collection": [],
                 "default_wallpaper": "",
                 "previous_wallpaper": "",
-            })
+            }
             self.bus.emit(Message("ovos.phal.wallpaper.manager.provider.registered"))
 
         self.collect_wallpapers_from_provider(Message("ovos.phal.wallpaper.manager.provider.collection.updated",
                                                       {"provider_name": provider_name}))
 
     def handle_get_registered_providers(self, message):
-        self.bus.emit(message.response(data={"registered_providers": self.registered_providers}))
+        self.bus.emit(message.response(data={"registered_providers": list(self.registered_providers.values())}))
 
     def handle_set_active_provider(self, message):
         provider_name = message.data.get("provider_name")
         provider_image = message.data.get("provider_image", "")
-        for provider in self.registered_providers:
-            if provider.get("provider_name") == self.selected_provider:
-                provider["previous_wallpaper"] = self.selected_wallpaper
-                break
+        if provider_name in self.registered_providers:
+            self.registered_providers[provider_name]["previous_wallpaper"] = \
+                self.selected_wallpaper
 
         self.selected_provider = provider_name
         self.selected_wallpaper = ""
 
-        wallpaper_collection = None
-        default_wallpaper = None
-        previous_wallpaper = None
-        for provider in self.registered_providers:
-            if provider.get("provider_name") == self.selected_provider:
-                wallpaper_collection = provider.get("wallpaper_collection")
-                default_wallpaper = provider.get("default_wallpaper")
-                previous_wallpaper = provider.get("previous_wallpaper")
-                break
+        provider_data = self.registered_providers.get(self.selected_provider)
+        wallpaper_collection = provider_data.get("wallpaper_collection")
+        default_wallpaper = provider_data.get("default_wallpaper")
+        previous_wallpaper = provider_data.get("previous_wallpaper")
 
         if not self.selected_wallpaper and provider_image:
             self.handle_set_wallpaper(Message("ovos.phal.wallpaper.manager.set.wallpaper",
@@ -197,11 +188,7 @@ class WallpaperManager(PHALPlugin):
         if not self.selected_provider:
             self.selected_provider = provider_name
 
-        wallpaper_collection = None
-        for provider in self.registered_providers:
-            if provider.get("provider_name") == self.selected_provider:
-                wallpaper_collection = provider.get("wallpaper_collection")
-                break
+        wallpaper_collection = self.registered_providers.get(self.selected_provider, {}).get("wallpaper_collection")
 
         if wallpaper_collection:
             if self.selected_wallpaper:
@@ -221,10 +208,13 @@ class WallpaperManager(PHALPlugin):
                 self.selected_wallpaper = wallpaper_path
 
         if not wallpaper_collection:
-            self.bus.emit(Message(f"{self.selected_provider}.get.new.wallpaper"))
-            self.threading_event.wait()
+            self.bus.wait_for_response(
+                message.forward(f"{self.selected_provider}.get.new.wallpaper"),
+                timeout=60)
 
-        self.bus.emit(message.response(data={"provider_name": self.selected_provider, "url": self.selected_wallpaper}))
+        self.bus.emit(message.response(
+            data={"provider_name": self.selected_provider,
+                  "url": self.selected_wallpaper}))
         self.setup_default_provider_running = False
 
     def collect_wallpapers_from_provider(self, message):
@@ -234,26 +224,20 @@ class WallpaperManager(PHALPlugin):
     def handle_wallpaper_collection(self, message):
         provider_name = message.data.get("provider_name")
         wallpaper_collection = message.data.get("wallpaper_collection")
-        if provider_name and wallpaper_collection:
-            for provider in self.registered_providers:
-                if provider.get("provider_name") == provider_name:
-                    provider["wallpaper_collection"] = wallpaper_collection
+        if provider_name and wallpaper_collection and provider_name in self.registered_providers:
+            self.registered_providers[provider_name]["wallpaper_collection"] = wallpaper_collection
 
     def get_wallpaper_collection_from_provider(self, message):
         provider_name = message.data.get("provider_name")
         if provider_name:
-            for provider in self.registered_providers:
-                if provider.get("provider_name") == provider_name:
-                    self.bus.emit(message.response(
-                        data={"provider_name": provider_name,
-                              "wallpaper_collection": provider["wallpaper_collection"]}))
+            provider = self.registered_providers.get(provider_name)
+            if provider:
+                self.bus.emit(message.response(
+                    data={"provider_name": provider_name,
+                          "wallpaper_collection": provider["wallpaper_collection"]}))
 
     def get_wallpaper_collection(self, message):
-        current_wallpaper_collection = []
-        for provider in self.registered_providers:
-            if provider.get("provider_name") == self.selected_provider:
-                current_wallpaper_collection = provider["wallpaper_collection"]
-
+        current_wallpaper_collection = self.registered_providers.get(self.selected_provider) or list()
         self.bus.emit(message.response(
             data={"wallpaper_collection": current_wallpaper_collection}))
 
@@ -280,7 +264,7 @@ class WallpaperManager(PHALPlugin):
             self.selected_wallpaper = wallpaper
         else:
             self.selected_wallpaper = wallpaper
-            self.threading_event.set()
+        self.bus.emit(message.response({"wallpaper": wallpaper}))
 
     def handle_get_wallpaper(self, message):
         self.bus.emit(message.response(data={"url": self.selected_wallpaper}))
@@ -293,15 +277,15 @@ class WallpaperManager(PHALPlugin):
             return None
 
     def handle_change_wallpaper(self, message=None):
-        wallpaper_collection = []
-        for provider in self.registered_providers:
-            if provider.get("provider_name") == self.selected_provider:
-                wallpaper_collection = provider["wallpaper_collection"]
+        wallpaper_collection = \
+            self.registered_providers.get(self.selected_provider) or list()
 
         if len(wallpaper_collection) > 0:
-            current_idx = self.get_wallpaper_idx(wallpaper_collection, self.selected_wallpaper)
-            collection_length = len(wallpaper_collection) - 1
-            if not current_idx == collection_length:
+            current_idx = self.get_wallpaper_idx(wallpaper_collection,
+                                                 self.selected_wallpaper)
+            final_idx = len(wallpaper_collection) - 1
+            LOG.info(f"Getting new wallpaper. current={current_idx} final_idx={final_idx}")
+            if not current_idx == final_idx:
                 future_idx = current_idx + 1
                 self.handle_set_wallpaper(Message("ovos.wallpaper.manager.set.wallpaper",
                                                   {"url": wallpaper_collection[future_idx]}))
@@ -310,6 +294,7 @@ class WallpaperManager(PHALPlugin):
                                                   {"url": wallpaper_collection[0]}))
 
         else:
+            LOG.info("No wallpaper in registered providers")
             self.bus.emit(Message(f"{self.selected_provider}.get.new.wallpaper"))
 
     def handle_enable_auto_rotation(self, message):
