@@ -1,8 +1,7 @@
 import hashlib
 import os
-import threading
-
 import requests
+
 from ovos_bus_client.message import Message
 from ovos_config.config import Configuration
 from ovos_plugin_manager.phal import PHALPlugin
@@ -78,43 +77,73 @@ class WallpaperManager(PHALPlugin):
                     self.handle_change_wallpaper)
 
         # Auto wallpaper rotation and setting up time for change
-        self.bus.on("ovos.wallpaper.manager.enable.auto.rotation", self.handle_enable_auto_rotation)
-        self.bus.on("ovos.wallpaper.manager.disable.auto.rotation", self.handle_disable_auto_rotation)
-        self.bus.on("ovos.wallpaper.manager.get.auto.rotation", self.handle_get_auto_rotation)
+        self.bus.on("ovos.wallpaper.manager.enable.auto.rotation",
+                    self.handle_enable_auto_rotation)
+        self.bus.on("ovos.wallpaper.manager.disable.auto.rotation",
+                    self.handle_disable_auto_rotation)
+        self.bus.on("ovos.wallpaper.manager.get.auto.rotation",
+                    self.handle_get_auto_rotation)
 
-        # We cannot guarantee when this plugin will be loaded so emit a message to any providers
-        # that are waiting for the plugin to be loaded so they can immediately register
+        if self.wallpaper_rotation:
+            # Start rotation if configured
+            self._start_auto_rotation()
+
+        # We cannot guarantee when this plugin will be loaded, so emit a message
+        # to any providers that are waiting for the plugin to be loaded, so they
+        # can immediately register
         self.bus.emit(Message("ovos.wallpaper.manager.loaded"))
 
     @property
-    def selected_provider(self):
-        return self.settings.get("selected_provider", "")
+    def selected_provider(self) -> str:
+        """
+        Get the selected wallpaper provider ID from configuration
+        """
+        return self.settings.get("selected_provider") or ""
 
     @selected_provider.setter
-    def selected_provider(self, val):
+    def selected_provider(self, val: str):
+        """
+        Set the wallpaper provider ID
+        """
         self.settings["selected_provider"] = str(val)
         self.settings.store()
 
     @property
-    def selected_wallpaper(self):
-        return self.settings.get("selected_wallpaper", "")
+    def selected_wallpaper(self) -> str:
+        """
+        Get the currently selected wallpaper URI
+        """
+        return self.settings.get("selected_wallpaper") or ""
 
     @selected_wallpaper.setter
-    def selected_wallpaper(self, val):
+    def selected_wallpaper(self, val: str):
+        """
+        Set the currently selected wallpaper URI
+        """
         self.settings["selected_wallpaper"] = str(val)
         self.settings.store()
 
     @property
-    def wallpaper_rotation(self):
-        return self.settings.get("wallpaper_rotation", True)
+    def wallpaper_rotation(self) -> bool:
+        """
+        If true, rotate through all wallpapers from the selected provider
+        """
+        return self.settings.get("wallpaper_rotation") or False
 
     @wallpaper_rotation.setter
-    def wallpaper_rotation(self, val):
+    def wallpaper_rotation(self, val: bool):
+        """
+        Enable rotating through all wallpapers from the selected provider
+        """
         self.settings["wallpaper_rotation"] = bool(val)
         self.settings.store()
 
     @property
     def wallpaper_rotation_time(self) -> int:
+        """
+        Get the time in seconds to display each wallpaper from the selected
+        provider
+        """
         try:
             rot_time = self.settings.get("wallpaper_rotation_time") or 30
             return int(rot_time)
@@ -123,7 +152,11 @@ class WallpaperManager(PHALPlugin):
             return 30
 
     @wallpaper_rotation_time.setter
-    def wallpaper_rotation_time(self, val):
+    def wallpaper_rotation_time(self, val: int):
+        """
+        Set the time in seconds to display each wallpaper from the selected
+        provider
+        """
         self.settings["wallpaper_rotation_time"] = int(val)
         self.settings.store()
 
@@ -302,14 +335,20 @@ class WallpaperManager(PHALPlugin):
             LOG.info("No wallpaper in registered providers")
             self.bus.emit(Message(f"{self.selected_provider}.get.new.wallpaper"))
 
-    def handle_enable_auto_rotation(self, message):
-        self.wallpaper_rotation_time = message.data.get("rotation_time") or \
-                                       self.wallpaper_rotation_time
-
+    def _start_auto_rotation(self):
+        """
+        Start rotating through wallpapers. This setting will persist through
+        module/plugin reloads.
+        """
         self.event_scheduler_interface.schedule_repeating_event(
             self.handle_change_wallpaper, None, self.wallpaper_rotation_time,
             data=None, name="wallpaper_rotation")
         self.wallpaper_rotation = True
+
+    def handle_enable_auto_rotation(self, message):
+        self.wallpaper_rotation_time = message.data.get("rotation_time") or \
+                                       self.wallpaper_rotation_time
+        self._start_auto_rotation()
         self.bus.emit(Message("ovos.wallpaper.manager.auto.rotation.enabled"))
 
     def handle_disable_auto_rotation(self, message):
