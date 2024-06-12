@@ -242,7 +242,7 @@ class WallpaperManager(PHALPlugin):
                           "wallpaper_collection": provider["wallpaper_collection"]}))
 
     def get_wallpaper_collection(self, message):
-        current_wallpaper_collection = self.registered_providers.get(self.selected_provider) or list()
+        current_wallpaper_collection = self.registered_providers.get(self.selected_provider, {}).get("wallpaper_collection") or list()
         self.bus.emit(message.response(
             data={"wallpaper_collection": current_wallpaper_collection}))
 
@@ -283,7 +283,7 @@ class WallpaperManager(PHALPlugin):
 
     def handle_change_wallpaper(self, message=None):
         wallpaper_collection = \
-            self.registered_providers.get(self.selected_provider) or list()
+            self.registered_providers.get(self.selected_provider, {}).get("wallpaper_collection") or list()
 
         if len(wallpaper_collection) > 0:
             current_idx = self.get_wallpaper_idx(wallpaper_collection,
