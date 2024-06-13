@@ -243,10 +243,10 @@ class WallpaperManager(PHALPlugin):
                 default_wallpaper = next((wp for wp in wallpaper_collection if wp.endswith(default_wallpaper_name)),
                                          None)
                 if default_wallpaper:
-                    for provider in self.registered_providers:
-                        if provider.get("provider_name") == self.selected_provider:
-                            provider["default_wallpaper"] = default_wallpaper
-                            break
+                    self.registered_providers.get(self.selected_provider,
+                                                  {})["default_wallpaper"] = \
+                        default_wallpaper
+
                 wallpaper_path = default_wallpaper
 
             if wallpaper_path:
