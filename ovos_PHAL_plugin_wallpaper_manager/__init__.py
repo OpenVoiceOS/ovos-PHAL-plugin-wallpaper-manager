@@ -1,11 +1,10 @@
 import hashlib
 import os
-from typing import Optional
-
 import requests
 
+from os.path import isfile
 from ovos_bus_client.message import Message
-from ovos_config.config import Configuration
+from ovos_config.config import update_mycroft_config
 from ovos_plugin_manager.phal import PHALPlugin
 from ovos_utils.events import EventSchedulerInterface
 from ovos_utils.log import LOG
@@ -19,16 +18,18 @@ class WallpaperManager(PHALPlugin):
     def __init__(self, bus=None, config=None):
         name = "ovos-PHAL-plugin-wallpaper-manager"
         super().__init__(bus=bus, name=name, config=config)
-
-        # this is a XDG compliant json storage object similar to self.settings in MycroftSkill
-        # it can be used to keep state
-        core_config = Configuration()
-        enclosure_config = core_config.get("gui") or {}
-        self.active_extension = enclosure_config.get("extension", "generic")
         self.event_scheduler_interface = EventSchedulerInterface(skill_id=name,
                                                                  bus=self.bus)
 
-        self.settings = PrivateSettings(name)
+        settings = PrivateSettings(name)
+        if isfile(settings.path):
+            LOG.warning(f"Legacy config found at {settings.path}")
+            for key, value in settings.items():
+                self.config[key] = value
+            os.remove(settings.path)
+            new_config = {"PHAL": {self.name: self.config}}
+            update_mycroft_config(config=new_config, bus=self.bus)
+
         self.registered_providers = {}
         self.setup_default_provider_running = False
         self.local_wallpaper_storage = os.path.join(xdg_data_home(),
@@ -100,45 +101,48 @@ class WallpaperManager(PHALPlugin):
         """
         Get the selected wallpaper provider ID from configuration
         """
-        return self.settings.get("selected_provider") or ""
+        return self.config.get("selected_provider") or ""
 
     @selected_provider.setter
     def selected_provider(self, val: str):
         """
         Set the wallpaper provider ID
         """
-        self.settings["selected_provider"] = str(val)
-        self.settings.store()
+        self.config["selected_provider"] = val
+        new_config = {"PHAL": {self.name: self.config}}
+        update_mycroft_config(config=new_config, bus=self.bus)
 
     @property
     def selected_wallpaper(self) -> str:
         """
         Get the currently selected wallpaper URI
         """
-        return self.settings.get("selected_wallpaper") or ""
+        return self.config.get("selected_wallpaper") or ""
 
     @selected_wallpaper.setter
     def selected_wallpaper(self, val: str):
         """
         Set the currently selected wallpaper URI
         """
-        self.settings["selected_wallpaper"] = str(val)
-        self.settings.store()
+        self.config["selected_wallpaper"] = val
+        new_config = {"PHAL": {self.name: self.config}}
+        update_mycroft_config(config=new_config, bus=self.bus)
 
     @property
     def wallpaper_rotation(self) -> bool:
         """
         If true, rotate through all wallpapers from the selected provider
         """
-        return self.settings.get("wallpaper_rotation") or False
+        return self.config.get("wallpaper_rotation") or False
 
     @wallpaper_rotation.setter
     def wallpaper_rotation(self, val: bool):
         """
         Enable rotating through all wallpapers from the selected provider
         """
-        self.settings["wallpaper_rotation"] = bool(val)
-        self.settings.store()
+        self.config["wallpaper_rotation"] = bool(val)
+        new_config = {"PHAL": {self.name: self.config}}
+        update_mycroft_config(config=new_config, bus=self.bus)
 
     @property
     def wallpaper_rotation_time(self) -> int:
@@ -147,7 +151,7 @@ class WallpaperManager(PHALPlugin):
         provider
         """
         try:
-            rot_time = self.settings.get("wallpaper_rotation_time") or 30
+            rot_time = self.config.get("wallpaper_rotation_time") or 30
             return int(rot_time)
         except Exception as e:
             LOG.error(e)
@@ -159,8 +163,9 @@ class WallpaperManager(PHALPlugin):
         Set the time in seconds to display each wallpaper from the selected
         provider
         """
-        self.settings["wallpaper_rotation_time"] = int(val)
-        self.settings.store()
+        self.config["wallpaper_rotation_time"] = int(val)
+        new_config = {"PHAL": {self.name: self.config}}
+        update_mycroft_config(config=new_config, bus=self.bus)
 
     def handle_register_provider(self, message):
         # Required will be used internally as the id, should be generally the skill id
@@ -351,18 +356,20 @@ class WallpaperManager(PHALPlugin):
         Start rotating through wallpapers. This setting will persist through
         module/plugin reloads.
         """
+        LOG.info("Starting wallpaper rotation")
         self.event_scheduler_interface.schedule_repeating_event(
             self.handle_change_wallpaper, None, self.wallpaper_rotation_time,
             data=None, name="wallpaper_rotation")
         self.wallpaper_rotation = True
+        self.bus.emit(Message("ovos.wallpaper.manager.auto.rotation.enabled"))
 
     def handle_enable_auto_rotation(self, message):
         self.wallpaper_rotation_time = message.data.get("rotation_time") or \
                                        self.wallpaper_rotation_time
         self._start_auto_rotation()
-        self.bus.emit(Message("ovos.wallpaper.manager.auto.rotation.enabled"))
 
     def handle_disable_auto_rotation(self, message):
+        LOG.info("Stopping wallpaper rotation")
         self.event_scheduler_interface.cancel_scheduled_event("wallpaper_rotation")
         self.wallpaper_rotation = False
         self.bus.emit(Message("ovos.wallpaper.manager.auto.rotation.disabled"))
