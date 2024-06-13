@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.2a7](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a7) (2024-06-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a6...0.0.2a7)
+
+**Closed issues:**
+
+- AttributeError: 'str' object has no attribute 'get' [\#13](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/issues/13)
+
+**Merged pull requests:**
+
+- Fix bad reference to `self.registered_providers` [\#14](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/14) ([NeonDaniel](https://github.com/NeonDaniel))
+
 ## [0.0.2a6](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a6) (2024-06-13)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a5...0.0.2a6)
