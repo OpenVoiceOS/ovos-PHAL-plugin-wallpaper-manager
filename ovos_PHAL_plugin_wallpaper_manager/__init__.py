@@ -18,9 +18,6 @@ class WallpaperManager(PHALPlugin):
     def __init__(self, bus=None, config=None):
         name = "ovos-PHAL-plugin-wallpaper-manager"
         super().__init__(bus=bus, name=name, config=config)
-
-        enclosure_config = self.config_core.get("gui") or {}
-        self.active_extension = enclosure_config.get("extension", "generic")
         self.event_scheduler_interface = EventSchedulerInterface(skill_id=name,
                                                                  bus=self.bus)
 
