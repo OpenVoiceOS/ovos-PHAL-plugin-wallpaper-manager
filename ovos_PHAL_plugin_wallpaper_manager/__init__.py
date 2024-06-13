@@ -362,12 +362,12 @@ class WallpaperManager(PHALPlugin):
             self.handle_change_wallpaper, None, self.wallpaper_rotation_time,
             data=None, name="wallpaper_rotation")
         self.wallpaper_rotation = True
+        self.bus.emit(Message("ovos.wallpaper.manager.auto.rotation.enabled"))
 
     def handle_enable_auto_rotation(self, message):
         self.wallpaper_rotation_time = message.data.get("rotation_time") or \
                                        self.wallpaper_rotation_time
         self._start_auto_rotation()
-        self.bus.emit(Message("ovos.wallpaper.manager.auto.rotation.enabled"))
 
     def handle_disable_auto_rotation(self, message):
         LOG.info("Stopping wallpaper rotation")
