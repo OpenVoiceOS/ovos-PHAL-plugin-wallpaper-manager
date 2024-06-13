@@ -30,6 +30,8 @@ class WallpaperManager(PHALPlugin):
             for key, value in settings.items():
                 self.config[key] = value
             os.remove(settings.path)
+            new_config = {"PHAL": {self.name: self.config}}
+            update_mycroft_config(config=new_config, bus=self.bus)
 
         self.registered_providers = {}
         self.setup_default_provider_running = False
