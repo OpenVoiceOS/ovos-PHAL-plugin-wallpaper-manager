@@ -1,10 +1,26 @@
 # OVOS PHAL PLUGIN WALLPAPER MANAGER
 This PHAL plugin provides a central wallpaper management interface for homescreens and other desktops
 
-Platform support provided by https://github.com/OpenVoiceOS/wallpaper_changer
-
 ### What is the Wallpaper Management Interface ?
 The wallpaper management interface provides functionality for providing a central interface for homescreen and desktop wallpaper management, this interface is responsible for providing a list of available wallpapers and also provides functionality for setting a wallpaper from the list of available wallpapers. This interface supports different types of wallpaper providers, this can be a local provider that provides wallpapers from the local filesystem or a remote provider that provides wallpapers from a remote url. 
+
+### Supported Desktop Environments
+
+- **ovos-shell** (via [homescreen skill](https://github.com/OpenVoiceOS/skill-ovos-homescreen))
+- **GNOME**: `gnome`, `unity`, `cinnamon`
+- **MATE**: `mate`
+- **XFCE**: `xfce4`
+- **KDE**: `kde`
+- **LXDE**: `lxde`
+- **Fluxbox**: `fluxbox`
+- **Openbox**: `openbox`
+- **IceWM**: `icewm`
+- **JWM**: `jwm`
+- **AfterStep**: `afterstep`
+- **Blackbox**: `blackbox`
+- **WindowMaker**: `windowmaker`
+
+Platform support provided by https://github.com/OpenVoiceOS/wallpaper_changer
 
 ### Install
 `pip install ovos-PHAL-plugin-wallpaper-manager`
@@ -163,48 +179,18 @@ Wallpaper auto rotation can be disabled by sending the following event:
     # description: Request the wallpaper management interface to disable auto rotate
 ```
 
-### Provider Configuration API
-The wallpaper management interface provides functionality for configuring wallpaper providers through the GUI interface, this is the event providers must listen for:
-
-Note: Currently only string configuration options are supported.
-
-``` python
-    # {provider_name}.get.wallpaper.config
-    # type: Request
-    # description: Request the wallpaper management interface to configure a wallpaper provider
-```
-
-on receiving the above event, the wallpaper provider must respond with the following event:
-
-``` python
-    # ovos.wallpaper.manager.provider.config
-    # type: Response
-    # description: Response to the wallpaper provider configuration request
-    # data required:
-        # provider_name = typically the self.skill_id of the skill that provides the wallpaper provider
-        # config = a dictionary of configuration options for the wallpaper provider
-```
-
 ## Example Implementation in a Wallpaper Provider Skill Providing a Collection of Wallpapers:
 
 ``` python
 
 def ExampleWallpaperProvider(OVOSSkill):
-    def __init__(self):
-        super(ExampleWallpaperProvider, self).__init__(name="ExampleWallpaperProvider")
-        self.wallpaper_collection = []
-
     def initialize(self):
-        self.bus.on("ovos.wallpaper.manager.loaded",
-            self.register_with_wallpaper_provider)        
-        self.bus.on(f"{self.skill_id}.get.wallpaper.collection",
-                    self.supply_wallpaper_collection)
+        self.add_event("ovos.wallpaper.manager.loaded", self.register_with_wallpaper_provider)        
+        self.add_event(f"{self.skill_id}.get.wallpaper.collection", self.supply_wallpaper_collection)
 
     def collect_wallpapers(self):
         wallpaper_folder = "/usr/share/wallpapers"
-        for dirname, dirnames, filenames in os.walk(wallpaper_folder):
-            self.wallpaper_collection = filenames
-        pass
+        return [f"{wallpaper_folder}/{f}" for f in os.listdir(wallpaper_folder)]
     
     def register_with_wallpaper_provider(self, message):
         self.bus.emit(Message("ovos.wallpaper.manager.register.provider",
@@ -212,10 +198,10 @@ def ExampleWallpaperProvider(OVOSSkill):
                                     "provider_display_name": "Example Wallpaper Provider"}))
     
     def supply_wallpaper_collection(self, message):
-        self.collect_wallpapers()
+        wp = self.collect_wallpapers()
         self.bus.emit(Message("ovos.wallpaper.manager.collect.collection.response",
                               data={"provider_name": self.skill_id,
-                                    "wallpaper_collection": self.wallpaper_collection}))
+                                    "wallpaper_collection": wp}))
 ```
 
 ## Example Implementation in a Wallpaper Provider Skill Not Providing a Collection of Wallpapers:
@@ -223,15 +209,9 @@ def ExampleWallpaperProvider(OVOSSkill):
 ``` python
 
 def ExampleWallpaperProvider(OVOSSkill):
-    def __init__(self):
-        super(ExampleWallpaperProvider, self).__init__(name="ExampleWallpaperProvider")
-        self.wallpaper_collection = []
-
     def initialize(self):
-        self.bus.on("ovos.wallpaper.manager.loaded",
-            self.register_with_wallpaper_provider)
-        self.bus.on(f"{self.skill_id}.get.new.wallpaper",
-                    self.supply_new_wallpaper)
+        self.add_event("ovos.wallpaper.manager.loaded", self.register_with_wallpaper_provider)
+        self.add_event(f"{self.skill_id}.get.new.wallpaper", self.supply_new_wallpaper)
     
     def register_with_wallpaper_provider(self, message):
         self.bus.emit(Message("ovos.wallpaper.manager.register.provider",
