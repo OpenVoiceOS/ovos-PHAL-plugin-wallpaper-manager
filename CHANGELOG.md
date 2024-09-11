@@ -1,68 +1,12 @@
 # Changelog
 
-## [0.0.2a7](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a7) (2024-06-13)
+## [0.1.1a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.1.1a1) (2024-09-11)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a6...0.0.2a7)
-
-**Closed issues:**
-
-- AttributeError: 'str' object has no attribute 'get' [\#13](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/issues/13)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.1.0...0.1.1a1)
 
 **Merged pull requests:**
 
-- Fix bad reference to `self.registered_providers` [\#14](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/14) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.0.2a6](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a6) (2024-06-13)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a5...0.0.2a6)
-
-**Merged pull requests:**
-
-- Update logging and configuration handling [\#12](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/12) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.0.2a5](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a5) (2024-06-12)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a4...0.0.2a5)
-
-**Fixed bugs:**
-
-- Optimization and Logging [\#11](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/11) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.0.2a4](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a4) (2024-06-12)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a3...0.0.2a4)
-
-**Merged pull requests:**
-
-- remove unimplemented GUI api [\#10](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/10) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.0.2a3](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a3) (2024-03-27)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a2...0.0.2a3)
-
-**Fixed bugs:**
-
-- hotfix/workaround \#7 [\#8](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/8) ([JarbasAl](https://github.com/JarbasAl))
-
-**Closed issues:**
-
-- EGLFS error [\#7](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/issues/7)
-
-## [0.0.2a2](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a2) (2024-02-11)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.2a1...0.0.2a2)
-
-**Merged pull requests:**
-
-- Update requirements.txt [\#6](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/6) ([builderjer](https://github.com/builderjer))
-
-## [0.0.2a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.0.2a1) (2023-12-30)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.0.1...0.0.2a1)
-
-**Fixed bugs:**
-
-- update imports [\#5](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/5) ([JarbasAl](https://github.com/JarbasAl))
+- feat:semver [\#18](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/18) ([JarbasAl](https://github.com/JarbasAl))
 
 
 
