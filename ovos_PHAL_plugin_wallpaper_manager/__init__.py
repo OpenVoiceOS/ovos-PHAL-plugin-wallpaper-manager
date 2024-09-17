@@ -9,7 +9,6 @@ from ovos_plugin_manager.phal import PHALPlugin
 from ovos_utils.events import EventSchedulerInterface
 from ovos_utils.log import LOG
 from ovos_utils.xdg_utils import xdg_data_home
-from ovos_workshop.settings import PrivateSettings
 from wallpaper_changer import set_wallpaper
 
 
@@ -20,16 +19,6 @@ class WallpaperManager(PHALPlugin):
         super().__init__(bus=bus, name=name, config=config)
         self.event_scheduler_interface = EventSchedulerInterface(skill_id=name,
                                                                  bus=self.bus)
-
-        settings = PrivateSettings(name)
-        if isfile(settings.path):
-            LOG.warning(f"Legacy config found at {settings.path}")
-            for key, value in settings.items():
-                self.config[key] = value
-            os.remove(settings.path)
-            new_config = {"PHAL": {self.name: self.config}}
-            update_mycroft_config(config=new_config, bus=self.bus)
-
         self.registered_providers = {}
         self.setup_default_provider_running = False
         self.local_wallpaper_storage = os.path.join(xdg_data_home(),
