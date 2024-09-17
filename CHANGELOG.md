@@ -1,12 +1,12 @@
 # Changelog
 
-## [0.1.1a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.1.1a1) (2024-09-11)
+## [0.1.2a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.1.2a1) (2024-09-17)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.1.0...0.1.1a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.1.1...0.1.2a1)
 
 **Merged pull requests:**
 
-- feat:semver [\#18](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/18) ([JarbasAl](https://github.com/JarbasAl))
+- fix:drop dependency on ovos\_workshop [\#20](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/20) ([JarbasAl](https://github.com/JarbasAl))
 
 
 
