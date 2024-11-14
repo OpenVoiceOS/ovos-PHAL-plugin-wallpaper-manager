@@ -85,7 +85,7 @@ class WallpaperManager(PHALPlugin):
                 if not src.startswith(os.path.abspath(base)):
                     LOG.warning(f"Skipping file outside wallpapers directory: {src}")
                     continue
-                LOG.debug(f"Found wallpaper: {src}")
+                LOG.debug(f"Found wallpaper: {f}")
                 dst = os.path.join(self.local_wallpaper_storage, os.path.basename(f))
                 shutil.copy2(src, dst)
                 collection.append(dst)
@@ -101,6 +101,7 @@ class WallpaperManager(PHALPlugin):
             "default_wallpaper": f"{self.local_wallpaper_storage}/default.jpg",
             "previous_wallpaper": ""
         }
+
     @property
     def selected_provider(self) -> str:
         """
@@ -295,7 +296,7 @@ class WallpaperManager(PHALPlugin):
         @param message: `ovos.wallpaper.manager.change.wallpaper` message or
             message from EventScheduler
         """
-        LOG.debug(f"wallpapers in collection: {len(self.wallpaper_collection)}")
+        LOG.debug(f"current wallpaper provider: {self.selected_provider}")
         if len(self.wallpaper_collection) > 0:
             current_idx = self.get_wallpaper_idx(self.wallpaper_collection, self.selected_wallpaper)
             final_idx = len(self.wallpaper_collection) - 1
