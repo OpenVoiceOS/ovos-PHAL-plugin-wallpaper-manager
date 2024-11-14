@@ -238,9 +238,7 @@ class WallpaperManager(PHALPlugin):
                           "wallpaper_collection": provider["wallpaper_collection"]}))
 
     def get_wallpaper_collection(self, message):
-        current_wallpaper_collection = self.registered_providers.get(self.selected_provider, {}).get(
-            "wallpaper_collection") or list()
-        self.bus.emit(message.response(data={"wallpaper_collection": current_wallpaper_collection}))
+        self.bus.emit(message.response(data={"wallpaper_collection": self.wallpaper_collection}))
 
     def handle_set_wallpaper(self, message):
         wallpaper = message.data.get("url")
@@ -283,21 +281,19 @@ class WallpaperManager(PHALPlugin):
         @param message: `ovos.wallpaper.manager.change.wallpaper` message or
             message from EventScheduler
         """
-        wallpaper_collection = self.registered_providers.get(
-            self.selected_provider, {}).get("wallpaper_collection") or list()
-
-        if len(wallpaper_collection) > 0:
-            current_idx = self.get_wallpaper_idx(wallpaper_collection, self.selected_wallpaper)
-            final_idx = len(wallpaper_collection) - 1
+        LOG.debug(f"wallpapers in collection: {len(self.wallpaper_collection)}")
+        if len(self.wallpaper_collection) > 0:
+            current_idx = self.get_wallpaper_idx(self.wallpaper_collection, self.selected_wallpaper)
+            final_idx = len(self.wallpaper_collection) - 1
             LOG.debug(f"Getting new wallpaper. current={current_idx} "
                       f"final_idx={final_idx}")
             if not current_idx == final_idx:
                 future_idx = current_idx + 1
                 self.handle_set_wallpaper(message.forward("ovos.wallpaper.manager.set.wallpaper",
-                                                          {"url": wallpaper_collection[future_idx]}))
+                                                          {"url": self.wallpaper_collection[future_idx]}))
             else:
                 self.handle_set_wallpaper(message.forward("ovos.wallpaper.manager.set.wallpaper",
-                                                          {"url": wallpaper_collection[0]}))
+                                                          {"url": self.wallpaper_collection[0]}))
 
         else:
             LOG.info("No wallpaper in registered providers")
