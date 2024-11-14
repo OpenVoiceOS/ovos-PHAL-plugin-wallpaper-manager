@@ -83,8 +83,9 @@ class WallpaperManager(PHALPlugin):
                     continue
                 src = os.path.abspath(os.path.join(base, f))
                 if not src.startswith(os.path.abspath(base)):
-                    LOG.warning(f"Skipping file outside wallpapers directory: {f}")
+                    LOG.warning(f"Skipping file outside wallpapers directory: {src}")
                     continue
+                LOG.debug(f"Found wallpaper: {src}")
                 dst = os.path.join(self.local_wallpaper_storage, os.path.basename(f))
                 shutil.copy2(src, dst)
                 collection.append(dst)
