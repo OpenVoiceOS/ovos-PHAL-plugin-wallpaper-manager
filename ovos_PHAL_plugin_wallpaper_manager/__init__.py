@@ -20,7 +20,7 @@ class WallpaperManager(PHALPlugin):
         super().__init__(bus=bus, name=name, config=config)
         self.event_scheduler_interface = EventSchedulerInterface(skill_id=name, bus=self.bus)
         self.registered_providers = {}
-        self.local_wallpaper_storage = os.path.join(xdg_data_home(), "wallpapers")
+        self.local_wallpaper_storage = os.path.abspath(os.path.join(xdg_data_home(), "wallpapers"))
         self.populate_wallpapers()
 
         # Manage provider registration, activation and deactivation
@@ -70,13 +70,27 @@ class WallpaperManager(PHALPlugin):
     def populate_wallpapers(self):
         LOG.info(f"default wallpapers storage: {self.local_wallpaper_storage}")
         if not os.path.exists(self.local_wallpaper_storage):
-            os.makedirs(self.local_wallpaper_storage)
+            os.makedirs(self.local_wallpaper_storage, exist_ok=True)
         base = f"{os.path.dirname(__file__)}/wallpapers"
+        if not os.path.exists(base):
+            LOG.error(f"Default wallpapers directory not found: {base}")
+            return
         collection = []
-        for f in os.listdir(base):
-            dst = f"{self.local_wallpaper_storage}/{f}"
-            shutil.copy(f"{base}/{f}", dst)
-            collection.append(dst)
+        valid_extensions = {'.jpg', '.jpeg', '.png', '.gif'}
+        try:
+            for f in os.listdir(base):
+                if not any(f.lower().endswith(ext) for ext in valid_extensions):
+                    continue
+                src = os.path.abspath(os.path.join(base, f))
+                if not src.startswith(os.path.abspath(base)):
+                    LOG.warning(f"Skipping file outside wallpapers directory: {f}")
+                    continue
+                dst = os.path.join(self.local_wallpaper_storage, os.path.basename(f))
+                shutil.copy2(src, dst)
+                collection.append(dst)
+        except OSError as e:
+            LOG.error(f"Error copying wallpapers: {e}")
+            return
 
         provider_name = "ovos-PHAL-plugin-wallpaper-manager"
         self.registered_providers[provider_name] = {
@@ -86,7 +100,6 @@ class WallpaperManager(PHALPlugin):
             "default_wallpaper": f"{self.local_wallpaper_storage}/default.jpg",
             "previous_wallpaper": ""
         }
-
     @property
     def selected_provider(self) -> str:
         """
