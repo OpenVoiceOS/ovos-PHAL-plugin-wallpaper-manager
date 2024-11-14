@@ -73,7 +73,7 @@ class WallpaperManager(PHALPlugin):
             os.makedirs(self.local_wallpaper_storage)
         base = f"{os.path.dirname(__file__)}/wallpapers"
         collection = []
-        for f in base:
+        for f in os.listdir(base):
             dst = f"{self.local_wallpaper_storage}/{f}"
             shutil.copy(f"{base}/{f}", dst)
             collection.append(dst)
