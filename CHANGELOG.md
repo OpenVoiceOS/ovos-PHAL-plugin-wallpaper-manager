@@ -1,12 +1,12 @@
 # Changelog
 
-## [0.2.0a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.0a1) (2024-11-14)
+## [0.2.1a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.1a1) (2025-01-28)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.1.2...0.2.0a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.0...0.2.1a1)
 
 **Merged pull requests:**
 
-- feat: default wallpapers bundled with plugin [\#22](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/22) ([JarbasAl](https://github.com/JarbasAl))
+- Fix non-default wallpaper handling [\#24](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/24) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
