@@ -309,7 +309,7 @@ class WallpaperManager(PHALPlugin):
             if current_idx is None:
                 LOG.warning("current wallpaper is not from the configured "
                             "provider. Starting from 0")
-                current_idx = final_idx
+                current_idx = -1
             LOG.debug(f"Getting new wallpaper. current={current_idx} "
                       f"final_idx={final_idx}")
             if not current_idx == final_idx:
