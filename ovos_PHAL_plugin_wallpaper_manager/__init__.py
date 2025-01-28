@@ -85,14 +85,17 @@ class WallpaperManager(PHALPlugin):
                 if not src.startswith(os.path.abspath(base)):
                     LOG.warning(f"Skipping file outside wallpapers directory: {src}")
                     continue
-                LOG.debug(f"Found wallpaper: {f}")
-                dst = os.path.join(self.local_wallpaper_storage, os.path.basename(f))
-                shutil.copy2(src, dst)
+                dst = os.path.join(self.local_wallpaper_storage,
+                                   os.path.basename(f))
+                if not os.path.exists(dst):
+                    LOG.debug(f"Adding default wallpaper: {f}")
+                    shutil.copy2(src, dst)
         except OSError as e:
             LOG.error(f"Error copying wallpapers: {e}")
             return
         # Collection is all valid files in the `wallpapers` directory
-        collection = [f for f in os.listdir(self.local_wallpaper_storage) if
+        collection = [os.path.join(self.local_wallpaper_storage, f) for f in
+                      os.listdir(self.local_wallpaper_storage) if
                       any(f.lower().endswith(ext) for ext in valid_extensions)]
 
         provider_name = "ovos-PHAL-plugin-wallpaper-manager"
