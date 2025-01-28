@@ -1,7 +1,7 @@
 import hashlib
 import os
 import shutil
-from typing import List
+from typing import List, Optional
 
 import requests
 from ovos_bus_client.message import Message
@@ -75,9 +75,9 @@ class WallpaperManager(PHALPlugin):
         if not os.path.exists(base):
             LOG.error(f"Default wallpapers directory not found: {base}")
             return
-        collection = []
         valid_extensions = {'.jpg', '.jpeg', '.png', '.gif'}
         try:
+            # Copy default wallpapers to the wallpaper directory
             for f in os.listdir(base):
                 if not any(f.lower().endswith(ext) for ext in valid_extensions):
                     continue
@@ -85,13 +85,18 @@ class WallpaperManager(PHALPlugin):
                 if not src.startswith(os.path.abspath(base)):
                     LOG.warning(f"Skipping file outside wallpapers directory: {src}")
                     continue
-                LOG.debug(f"Found wallpaper: {f}")
-                dst = os.path.join(self.local_wallpaper_storage, os.path.basename(f))
-                shutil.copy2(src, dst)
-                collection.append(dst)
+                dst = os.path.join(self.local_wallpaper_storage,
+                                   os.path.basename(f))
+                if not os.path.exists(dst):
+                    LOG.debug(f"Adding default wallpaper: {f}")
+                    shutil.copy2(src, dst)
         except OSError as e:
             LOG.error(f"Error copying wallpapers: {e}")
             return
+        # Collection is all valid files in the `wallpapers` directory
+        collection = [os.path.join(self.local_wallpaper_storage, f) for f in
+                      os.listdir(self.local_wallpaper_storage) if
+                      any(f.lower().endswith(ext) for ext in valid_extensions)]
 
         provider_name = "ovos-PHAL-plugin-wallpaper-manager"
         self.registered_providers[provider_name] = {
@@ -282,7 +287,7 @@ class WallpaperManager(PHALPlugin):
         self.bus.emit(message.response(data={"url": self.selected_wallpaper}))
 
     @staticmethod
-    def get_wallpaper_idx(collection, filename):
+    def get_wallpaper_idx(collection, filename) -> Optional[int]:
         try:
             index_element = collection.index(filename)
             return index_element
@@ -298,8 +303,13 @@ class WallpaperManager(PHALPlugin):
         """
         LOG.debug(f"current wallpaper provider: {self.selected_provider}")
         if len(self.wallpaper_collection) > 0:
-            current_idx = self.get_wallpaper_idx(self.wallpaper_collection, self.selected_wallpaper)
+            current_idx = self.get_wallpaper_idx(self.wallpaper_collection,
+                                                 self.selected_wallpaper)
             final_idx = len(self.wallpaper_collection) - 1
+            if current_idx is None:
+                LOG.warning("current wallpaper is not from the configured "
+                            "provider. Starting from 0")
+                current_idx = -1
             LOG.debug(f"Getting new wallpaper. current={current_idx} "
                       f"final_idx={final_idx}")
             if not current_idx == final_idx:
