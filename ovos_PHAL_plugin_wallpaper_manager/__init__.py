@@ -75,9 +75,9 @@ class WallpaperManager(PHALPlugin):
         if not os.path.exists(base):
             LOG.error(f"Default wallpapers directory not found: {base}")
             return
-        collection = []
         valid_extensions = {'.jpg', '.jpeg', '.png', '.gif'}
         try:
+            # Copy default wallpapers to the wallpaper directory
             for f in os.listdir(base):
                 if not any(f.lower().endswith(ext) for ext in valid_extensions):
                     continue
@@ -88,10 +88,12 @@ class WallpaperManager(PHALPlugin):
                 LOG.debug(f"Found wallpaper: {f}")
                 dst = os.path.join(self.local_wallpaper_storage, os.path.basename(f))
                 shutil.copy2(src, dst)
-                collection.append(dst)
         except OSError as e:
             LOG.error(f"Error copying wallpapers: {e}")
             return
+        # Collection is all valid files in the `wallpapers` directory
+        collection = [f for f in os.listdir(self.local_wallpaper_storage) if
+                      any(f.lower().endswith(ext) for ext in valid_extensions)]
 
         provider_name = "ovos-PHAL-plugin-wallpaper-manager"
         self.registered_providers[provider_name] = {
