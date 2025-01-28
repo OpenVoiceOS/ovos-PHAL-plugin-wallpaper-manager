@@ -1,7 +1,7 @@
 import hashlib
 import os
 import shutil
-from typing import List
+from typing import List, Optional
 
 import requests
 from ovos_bus_client.message import Message
@@ -282,7 +282,7 @@ class WallpaperManager(PHALPlugin):
         self.bus.emit(message.response(data={"url": self.selected_wallpaper}))
 
     @staticmethod
-    def get_wallpaper_idx(collection, filename):
+    def get_wallpaper_idx(collection, filename) -> Optional[int]:
         try:
             index_element = collection.index(filename)
             return index_element
@@ -298,8 +298,13 @@ class WallpaperManager(PHALPlugin):
         """
         LOG.debug(f"current wallpaper provider: {self.selected_provider}")
         if len(self.wallpaper_collection) > 0:
-            current_idx = self.get_wallpaper_idx(self.wallpaper_collection, self.selected_wallpaper)
+            current_idx = self.get_wallpaper_idx(self.wallpaper_collection,
+                                                 self.selected_wallpaper)
             final_idx = len(self.wallpaper_collection) - 1
+            if current_idx is None:
+                LOG.warning("current wallpaper is not from the configured "
+                            "provider. Starting from 0")
+                current_idx = final_idx
             LOG.debug(f"Getting new wallpaper. current={current_idx} "
                       f"final_idx={final_idx}")
             if not current_idx == final_idx:
