@@ -1,20 +1,12 @@
 # Changelog
 
-## [0.2.1a2](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.1a2) (2025-01-28)
+## [0.2.2a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.2a1) (2025-03-18)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.1a1...0.2.1a2)
-
-**Merged pull requests:**
-
-- Resolve failing alpha package automation [\#26](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/26) ([NeonDaniel](https://github.com/NeonDaniel))
-
-## [0.2.1a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.1a1) (2025-01-28)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.0...0.2.1a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.1...0.2.2a1)
 
 **Merged pull requests:**
 
-- Fix non-default wallpaper handling [\#24](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/24) ([NeonDaniel](https://github.com/NeonDaniel))
+- Resolve failing stable release automation [\#28](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/28) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
