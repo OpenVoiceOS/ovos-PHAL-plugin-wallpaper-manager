@@ -1,12 +1,12 @@
 # Changelog
 
-## [0.2.2a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.2a1) (2025-03-18)
+## [0.2.4a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.4a1) (2025-03-19)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.1...0.2.2a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.3...0.2.4a1)
 
 **Merged pull requests:**
 
-- Resolve failing stable release automation [\#28](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/28) ([NeonDaniel](https://github.com/NeonDaniel))
+- Fix PyPI stable publish action to checkout `master` [\#30](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/30) ([NeonDaniel](https://github.com/NeonDaniel))
 
 
 
