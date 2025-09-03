@@ -54,10 +54,6 @@ class WallpaperManager(PHALPlugin):
 
         self.bus.on("homescreen.metadata.get", self.handle_homescreen_load)
 
-        if self.wallpaper_rotation:
-            # Start rotation if configured
-            self._start_auto_rotation()
-
         # We cannot guarantee when this plugin will be loaded, so emit a message
         # to any providers that are waiting for the plugin to be loaded, so they
         # can immediately register
@@ -66,6 +62,11 @@ class WallpaperManager(PHALPlugin):
     def handle_homescreen_load(self, message: Message):
         self.bus.emit(Message("homescreen.wallpaper.set",
                               {"url": self.selected_wallpaper}))
+
+        # Start rotation if configured
+        if self.wallpaper_rotation:
+            self._start_auto_rotation()
+
 
     def populate_wallpapers(self):
         LOG.info(f"default wallpapers storage: {self.local_wallpaper_storage}")
