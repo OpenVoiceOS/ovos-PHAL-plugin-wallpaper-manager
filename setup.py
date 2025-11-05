@@ -57,7 +57,7 @@ def get_description():
 
 PLUGIN_ENTRY_POINT = 'ovos-PHAL-plugin-wallpaper-manager=ovos_PHAL_plugin_wallpaper_manager:WallpaperManager'
 setup(
-    name='ovos-PHAL-plugin-wallpaper-manager',
+    name='ovos_PHAL_plugin_wallpaper_manager',
     version=get_version(),
     description='A plugin for OpenVoiceOS hardware abstraction layer',
     long_description=get_description(),
