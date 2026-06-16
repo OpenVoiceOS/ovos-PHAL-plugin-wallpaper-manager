@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.7a2](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.7a2) (2026-06-16)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.7a1...0.2.7a2)
+
+**Merged pull requests:**
+
+- chore: add missing shared CI workflows [\#41](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/pull/41) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.7a1](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/tree/0.2.7a1) (2026-06-06)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-PHAL-plugin-wallpaper-manager/compare/0.2.6...0.2.7a1)
