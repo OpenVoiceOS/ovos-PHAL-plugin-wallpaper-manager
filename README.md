@@ -1,10 +1,8 @@
-# OVOS PHAL PLUGIN WALLPAPER MANAGER
-This PHAL plugin provides a central wallpaper management interface for homescreens and other desktops
+# OVOS PHAL Plugin Wallpaper Manager
 
-### What is the Wallpaper Management Interface ?
-The wallpaper management interface provides functionality for providing a central interface for homescreen and desktop wallpaper management, this interface is responsible for providing a list of available wallpapers and also provides functionality for setting a wallpaper from the list of available wallpapers. This interface supports different types of wallpaper providers, this can be a local provider that provides wallpapers from the local filesystem or a remote provider that provides wallpapers from a remote url. 
+This PHAL plugin gives OpenVoiceOS a central interface for wallpaper management. It works with homescreens and other desktop environments. The interface lists the wallpapers available from each registered provider, and it sets a wallpaper from that list. A provider can be a local source that reads wallpapers from the file system, or a remote source that reads wallpapers from a URL.
 
-### Supported Desktop Environments
+### Supported desktop environments
 
 - **ovos-shell** (via [homescreen skill](https://github.com/OpenVoiceOS/skill-ovos-homescreen))
 - **GNOME**: `gnome`, `unity`, `cinnamon`
@@ -20,15 +18,17 @@ The wallpaper management interface provides functionality for providing a centra
 - **Blackbox**: `blackbox`
 - **WindowMaker**: `windowmaker`
 
-Platform support provided by https://github.com/OpenVoiceOS/wallpaper_changer
+Platform support comes from [OpenVoiceOS/wallpaper_changer](https://github.com/OpenVoiceOS/wallpaper_changer).
 
 ### Install
+
 `pip install ovos-PHAL-plugin-wallpaper-manager`
 
-## Event & API Details and Usage:
+## Event and API reference
 
-### Registration / Activation of Wallpaper Providers API
-Wallpaper providers are required to register themselves with the central wallpaper management interface, this is done by sending the following event:
+### Register and activate a wallpaper provider
+
+A wallpaper provider must register with the central wallpaper management interface. To register, send this event:
 
 ``` python
     # ovos.wallpaper.manager.register.provider
@@ -40,15 +40,15 @@ Wallpaper providers are required to register themselves with the central wallpap
         # (optional) provider_configurable = True if the wallpaper provider is configurable, False if not
 ```
 
-On successful registration of a wallpaper provider, the wallpaper management interface will respond with the following event:
+When registration succeeds, the wallpaper management interface responds with this event:
+
 ``` python
     # ovos.phal.wallpaper.manager.provider.registered
     # type: Response
     # description: Registration successful
 ```
 
-Activate a wallpaper provider by sending the following event:
-
+To activate a wallpaper provider, send this event:
 
 ``` python
     # ovos.wallpaper.manager.set.active.provider
@@ -58,14 +58,13 @@ Activate a wallpaper provider by sending the following event:
         # provider_name = typically the self.skill_id of the skill that is the wallpaper provider
 ```
 
-Note: This is handled by the Wallpapers Settings UI on "smartspeaker" and "mobile" GUI platforms,
-Skills / Wallpaper providers must not be sending this unless they want to force override the currently set provider.
+Note: The Wallpapers Settings UI handles this event on "smartspeaker" and "mobile" GUI platforms. A skill or wallpaper provider must not send this event unless it needs to force an override of the current provider.
 
-### Wallpaper Collection API
-A wallpaper provider can send a collection of wallpapers to the wallpaper management interface, this is optional and will depend on case by case basis, where some providers might have their own collection of wallpapers and some 
-might not and depend on an online source for wallpapers.
+### Wallpaper collection API
 
-After registration of a wallpaper provider, the wallpaper management interface will send an event to the wallpaper provider to request a collection of wallpapers, Any provider wanting to provide wallpapers can do so by listening for the following signal:
+A wallpaper provider can send a collection of wallpapers to the wallpaper management interface. This step is optional. Some providers keep their own collection of wallpapers, and some depend on an online source instead.
+
+After a wallpaper provider registers, the wallpaper management interface sends it an event to request a collection of wallpapers. A provider that wants to supply wallpapers listens for this signal:
 
 ``` python
     # {provider_name}.get.wallpaper.collection
@@ -73,7 +72,7 @@ After registration of a wallpaper provider, the wallpaper management interface w
     # description: Request a collection of wallpapers from the wallpaper provider
 ```
 
-and responding to the above signal by sending the following event:
+The provider responds to that signal with this event:
 
 ``` python
     # ovos.wallpaper.manager.collect.collection.response
@@ -84,7 +83,7 @@ and responding to the above signal by sending the following event:
         # wallpaper_collection = a list of full wallpaper paths that are available from the wallpaper provider
 ```
 
-the wallpaper provider can also ask the wallpaper management interface to update its wallpaper collection by sending the following event at any time:
+A wallpaper provider can also ask the wallpaper management interface to update its wallpaper collection at any time, by sending this event:
 
 ``` python
     # ovos.wallpaper.manager.update.collection
@@ -94,8 +93,9 @@ the wallpaper provider can also ask the wallpaper management interface to update
         # provider_name = typically the self.skill_id of the skill that provides the wallpaper provider
 ```
 
-### Wallpaper Request For Non Collection Providers API
-If a wallpaper provider does not provide a collection of wallpapers, the wallpaper management interface will always send an event to the wallpaper provider to request for a new wallpaper, The wallpaper provider must listen for the following signal:
+### Wallpaper request for providers without a collection
+
+If a wallpaper provider does not supply a collection of wallpapers, the wallpaper management interface always sends it an event to request a new wallpaper. The provider must listen for this signal:
 
 ``` python
     # {provider_name}.get.new.wallpaper
@@ -103,7 +103,7 @@ If a wallpaper provider does not provide a collection of wallpapers, the wallpap
     # description: Request a new wallpaper from the wallpaper provider
 ```
 
-The wallpaper provider must respond to the above signal by sending the following event:
+The provider must respond to that signal with this event:
 
 ``` python
     # ovos.wallpaper.manager.set.wallpaper
@@ -113,8 +113,9 @@ The wallpaper provider must respond to the above signal by sending the following
         # url = the full path of the wallpaper that is to be set
 ```
 
-### Get and Set Wallpaper API
-The wallpaper management interface provides functionality for getting and setting wallpapers, the wallpaper management interface will send the following event to get the current wallpaper:
+### Get and set wallpaper API
+
+To get the current wallpaper, the wallpaper management interface sends this event:
 
 ``` python
     # ovos.wallpaper.manager.get.wallpaper
@@ -122,7 +123,7 @@ The wallpaper management interface provides functionality for getting and settin
     # description: Request the wallpaper management interface to get the current wallpaper
 ```
 
-The wallpaper management interface will respond to the above event with the following event:
+The wallpaper management interface responds to that event with this event:
 
 ``` python
     # ovos.wallpaper.manager.get.wallpaper.response
@@ -132,7 +133,7 @@ The wallpaper management interface will respond to the above event with the foll
         # url = the full path of the current wallpaper
 ```
 
-To set a wallpaper, the wallpaper management interface can be sent the following event:
+To set a wallpaper, send this event to the wallpaper management interface:
 
 ``` python
     # ovos.wallpaper.manager.set.wallpaper
@@ -142,13 +143,13 @@ To set a wallpaper, the wallpaper management interface can be sent the following
         # url = the full path of the wallpaper that is to be set
 ```
 
-Note: 
-- For platforms where homescreens are supported the above event will cause the wallpaper management interface will set the homescreen wallpaper.
-- For non homescreen platforms like the desktop, the above event will cause the wallpaper management interface to set the desktop wallpaper.
+Note:
+- On platforms that support a homescreen, this event sets the homescreen wallpaper.
+- On platforms without a homescreen, such as a desktop, this event sets the desktop wallpaper.
 
+### Change wallpaper API
 
-### Change Wallpapers API
-Any skill / event can request the wallpaper management interface to change the wallpaper by sending the following event:
+Any skill or event can ask the wallpaper management interface to change the wallpaper, by sending this event:
 
 ``` python
     # ovos.wallpaper.manager.change.wallpaper
@@ -156,12 +157,13 @@ Any skill / event can request the wallpaper management interface to change the w
     # description: Request the wallpaper management interface to change the wallpaper
 ```
 
-Note: 
-- If the selected provider provides a collection of wallpapers, the wallpaper management interface will select the next wallpaper from the collection and set it as the wallpaper.
-- If the selected provider does not provide a collection of wallpapers, the wallpaper management interface will send a request to the provider to get a new wallpaper.
+Note:
+- If the selected provider supplies a collection of wallpapers, the wallpaper management interface picks the next wallpaper from that collection and sets it.
+- If the selected provider does not supply a collection, the wallpaper management interface asks the provider for a new wallpaper.
 
-### AutoRotate Wallpapers API
-The wallpaper management interface provides functionality for automatically rotating wallpapers, this is done by sending the following event:
+### Auto-rotate wallpapers API
+
+To turn on automatic wallpaper rotation, send this event:
 
 ``` python
     # ovos.wallpaper.manager.enable.auto.rotation
@@ -171,7 +173,7 @@ The wallpaper management interface provides functionality for automatically rota
         # rotation_time = the time in seconds at which the wallpapers should be rotated
 ```
 
-Wallpaper auto rotation can be disabled by sending the following event:
+To turn off automatic wallpaper rotation, send this event:
 
 ``` python
     # ovos.wallpaper.manager.disable.auto.rotation
@@ -179,7 +181,7 @@ Wallpaper auto rotation can be disabled by sending the following event:
     # description: Request the wallpaper management interface to disable auto rotate
 ```
 
-## Example Implementation in a Wallpaper Provider Skill Providing a Collection of Wallpapers:
+## Example: wallpaper provider skill with a collection
 
 ``` python
 
@@ -204,7 +206,7 @@ def ExampleWallpaperProvider(OVOSSkill):
                                     "wallpaper_collection": wp}))
 ```
 
-## Example Implementation in a Wallpaper Provider Skill Not Providing a Collection of Wallpapers:
+## Example: wallpaper provider skill without a collection
 
 ``` python
 
@@ -225,3 +227,8 @@ def ExampleWallpaperProvider(OVOSSkill):
         self.bus.emit(Message("ovos.wallpaper.manager.set.wallpaper",
                               data={"url": url}))
 ```
+
+## Related projects
+
+- [OpenVoiceOS/wallpaper_changer](https://github.com/OpenVoiceOS/wallpaper_changer) — platform-specific wallpaper backend used by this plugin.
+- [OpenVoiceOS/skill-ovos-homescreen](https://github.com/OpenVoiceOS/skill-ovos-homescreen) — homescreen skill that consumes this interface on ovos-shell.
